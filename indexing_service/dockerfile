@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install pymongo
+
+RUN pip install kafka-python python-dotenv
+
+RUN pip install llama-index
+
+RUN pip install weaviate-client
+
+RUN pip install google-generativeai
+
+RUN pip install llama-index-vector-stores-weaviate llama-index-readers-mongodb llama-index-llms-gemini llama-index-embeddings-gemini 
+
+RUN pip install pypdf 
+
+RUN pip install proto-plus==1.24.0.dev1
+
+COPY indexing_service/. .
+
+CMD ["python", "-u", "main.py"]

@@ -1,0 +1,18 @@
+Mongo:
+    - document ID
+    - "text"
+Query:
+    in:
+        - queryID
+        - queryText
+        - Documents #IDs of documents to "Read" before using 
+    out:
+        - queryID
+        - queryAnswer
+IndexService:
+    AddDocument:
+        - RequestType == "ADD"
+        - DocumentID
+    RemoveDocument:
+        - RequestType == "REMOVE"
+        - DocumentID

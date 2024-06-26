@@ -1,0 +1,65 @@
+version: '3.8'
+services:
+  kafka:
+    image: 'bitnami/kafka:latest'
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+  
+  weaviate:
+    command:
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8080'
+    - --scheme
+    - http
+    image: cr.weaviate.io/semitechnologies/weaviate:1.25.3
+    ports:
+    - 8080:8080
+    - 50051:50051
+    volumes:
+    - ./weaviate_data:/var/lib/weaviate
+    restart: on-failure:0
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-palm'
+      ENABLE_MODULES: 'text2vec-palm,generative-palm'
+      CLUSTER_HOSTNAME: 'node1'
+
+  mongodb:
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data/db
+
+  indexing_service:
+    build: 
+      dockerfile: indexing_service/dockerfile
+    restart: on-failure
+    depends_on:
+      - kafka
+      - mongodb
+      - weaviate
+
+  query_service:
+    build: 
+      dockerfile: query_service/dockerfile
+    restart: on-failure
+    depends_on:
+      - kafka
+      - mongodb
+      - weaviate
+      
+volumes:
+  weaviate_data:

@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install kafka-python python-dotenv llama-index llama-index-llms-gemini llama-index-readers-mongodb
+RUN pip install llama-index-vector-stores-weaviate llama-index-embeddings-gemini 
+
+RUN pip install weaviate-client
+
+COPY query_service/. .
+
+CMD ["python", "-u", "main.py"]
