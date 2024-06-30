@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN pip install install Flask requests
+
+RUN pip install PyPDF2 
+
+RUN pip install python-dotenv
+
+RUN pip install pymongo
+
+RUN pip install kafka-python
+
+COPY text_extractor/. .
+
+CMD ["python", "-u", "main.py"]

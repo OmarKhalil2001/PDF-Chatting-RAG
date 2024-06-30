@@ -60,6 +60,32 @@ services:
       - kafka
       - mongodb
       - weaviate
+  
+  dummy_frontend:
+    build: 
+      dockerfile: dummy_frontend/dockerfile
+    ports:
+      - 2001:80
+    depends_on:
+      - text_extractor
+
+  text_extractor:
+    container_name: text-extractor
+    build: 
+      dockerfile: text_extractor/dockerfile
+    ports:
+      - "5040:5040"
+    depends_on:
+      - indexing_service
+      - kafka
       
+
+  testing:
+    build: 
+      dockerfile: Testing_folder/dockerfile
+    depends_on:
+      - indexing_service
+      - query_service
+
 volumes:
   weaviate_data:
